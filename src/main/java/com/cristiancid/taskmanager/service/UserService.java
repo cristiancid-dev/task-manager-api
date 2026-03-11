@@ -4,6 +4,8 @@ import com.cristiancid.taskmanager.model.User;
 import com.cristiancid.taskmanager.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class UserService {
 
@@ -16,5 +18,9 @@ public class UserService {
     public User createUser(String name, String email) {
         User newUser = new User(name, email);
         return userRepository.save(newUser);
+    }
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 }
