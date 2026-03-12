@@ -25,7 +25,15 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public Optional<User> getUserById(long id) {
+    public Optional<User> getUserById(Long id) {
         return  userRepository.findById(id);
+    }
+
+    public boolean deleteUserById(Long id) {
+        if(!userRepository.existsById(id)) {
+            return false;
+        }
+        userRepository.deleteById(id);
+        return true;
     }
 }
