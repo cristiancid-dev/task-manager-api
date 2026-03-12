@@ -1,6 +1,7 @@
 package com.cristiancid.taskmanager.controller;
 
 import com.cristiancid.taskmanager.dto.CreateUserRequest;
+import com.cristiancid.taskmanager.dto.UpdateUserRequest;
 import com.cristiancid.taskmanager.model.User;
 import com.cristiancid.taskmanager.service.UserService;
 import jakarta.validation.Valid;
@@ -52,5 +53,15 @@ public class UserController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<User> updateUserById(@PathVariable Long id,
+                                               @Valid @RequestBody UpdateUserRequest request) {
+        Optional<User> user = userService.updateUserById(id, request);
+        if(user.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(user.get());
     }
 }
