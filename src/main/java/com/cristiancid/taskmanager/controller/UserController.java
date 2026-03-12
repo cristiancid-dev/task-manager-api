@@ -3,8 +3,10 @@ package com.cristiancid.taskmanager.controller;
 import com.cristiancid.taskmanager.dto.CreateUserRequest;
 import com.cristiancid.taskmanager.model.User;
 import com.cristiancid.taskmanager.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,7 +23,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody CreateUserRequest request) {
+    public ResponseEntity<User> createUser(@Valid @RequestBody CreateUserRequest request) {
         String name = request.getName();
         String email = request.getEmail();
         User newUser = userService.createUser(name, email);
