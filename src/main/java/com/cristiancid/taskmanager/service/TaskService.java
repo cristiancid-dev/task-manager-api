@@ -1,6 +1,7 @@
 package com.cristiancid.taskmanager.service;
 
 import com.cristiancid.taskmanager.dto.CreateTaskRequest;
+import com.cristiancid.taskmanager.exception.TaskNotFoundException;
 import com.cristiancid.taskmanager.exception.UserNotFoundException;
 import com.cristiancid.taskmanager.model.Task;
 import com.cristiancid.taskmanager.model.User;
@@ -38,5 +39,13 @@ public class TaskService {
             throw new UserNotFoundException("user not found");
         }
         return taskRepository.findByUserId(userId);
+    }
+
+    public Task getTaskById(Long id) {
+        Optional<Task> optionalTask = taskRepository.findById(id);
+        if (optionalTask.isEmpty()) {
+            throw new TaskNotFoundException("task not found");
+        }
+        return optionalTask.get();
     }
 }
