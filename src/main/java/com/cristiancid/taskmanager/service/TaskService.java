@@ -66,4 +66,14 @@ public class TaskService {
         task.setTitle(request.getTitle());
         return taskRepository.save(task);
     }
+
+    public Task completeTask(Long id) {
+        Optional<Task> optionalTask = taskRepository.findById(id);
+        if(optionalTask.isEmpty()) {
+            throw new TaskNotFoundException("task not found");
+        }
+        Task task = optionalTask.get();
+        task.setCompleted(true);
+        return taskRepository.save(task);
+    }
 }
