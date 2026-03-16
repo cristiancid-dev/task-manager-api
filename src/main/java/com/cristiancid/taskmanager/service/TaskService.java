@@ -48,4 +48,11 @@ public class TaskService {
         }
         return optionalTask.get();
     }
+
+    public void deleteTaskById(Long id) {
+        if(!taskRepository.existsById(id)) {
+            throw new TaskNotFoundException("task not found");
+        }
+        taskRepository.deleteById(id);
+    }
 }
