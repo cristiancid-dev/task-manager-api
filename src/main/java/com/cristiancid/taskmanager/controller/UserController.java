@@ -62,5 +62,6 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(user.get());
+
     }
 }

@@ -1,6 +1,7 @@
 package com.cristiancid.taskmanager.controller;
 
 import com.cristiancid.taskmanager.dto.CreateTaskRequest;
+import com.cristiancid.taskmanager.dto.UpdateTaskRequest;
 import com.cristiancid.taskmanager.model.Task;
 import com.cristiancid.taskmanager.service.TaskService;
 import jakarta.validation.Valid;
@@ -43,5 +44,13 @@ public class TaskController {
     public ResponseEntity<Void> deleteTaskById(@PathVariable Long id) {
         taskService.deleteTaskById(id);
         return ResponseEntity.noContent().build();
+
+    }
+
+    @PutMapping("/tasks/{id}")
+    public ResponseEntity<Task> updateTaskById(@PathVariable Long id,
+                                               @Valid @RequestBody UpdateTaskRequest request) {
+        return ResponseEntity.ok(taskService.updateTaskById(id, request));
+
     }
 }
