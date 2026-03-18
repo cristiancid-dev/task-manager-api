@@ -40,7 +40,7 @@ public class TaskServiceTest {
     }
 
     @Test
-    void shouldThrowTaskNotFoundExceptionWhenTaskDoesNotExist() {
+    void shouldThrowTaskNotFoundExceptionWhenNonExistingTask() {
         Long id = 1L;
         when(taskRepository.findById(id)).thenReturn(Optional.empty());
 
@@ -81,6 +81,32 @@ public class TaskServiceTest {
         });
         verify(taskRepository).findById(id);
         verify(taskRepository, never()).save(any(Task.class));
+    }
+
+    @Test
+    void shouldDeleteTaskWhenTaskExists() {
+        Long id = 1L;
+        User user = new User("Cristian", "ccidbe@gmail.com");
+        Task task = new Task("defaultTitle", false, user);
+        when(taskRepository.existsById(id)).thenReturn(true);
+
+        assertDoesNotThrow(() -> {
+            taskService.deleteTaskById(id);
+        });
+        verify(taskRepository).existsById(id);
+        verify(taskRepository).deleteById(id);
+    }
+
+    @Test
+    void shouldThrowTaskNotFoundExceptionWhenDeletingNonExistingTask() {
+        Long id = 1L;
+        when(taskRepository.existsById(id)).thenReturn(false);
+
+        assertThrows(TaskNotFoundException.class, () -> {
+            taskService.deleteTaskById(id);
+        });
+        verify(taskRepository).existsById(id);
+        verify(taskRepository, never()).deleteById(anyLong());
     }
 
 }
