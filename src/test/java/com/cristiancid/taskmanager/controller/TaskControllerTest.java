@@ -5,18 +5,14 @@ import com.cristiancid.taskmanager.model.Task;
 import com.cristiancid.taskmanager.model.User;
 import com.cristiancid.taskmanager.service.TaskService;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.client.StatusAssertions;
-import org.springframework.util.Assert;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -51,7 +47,6 @@ public class TaskControllerTest {
     void shouldReturnOkWhenCompletingExistingTask() throws Exception {
         User user = new User("Cristian", "ccidbe@gmail.com");
         Task task = new Task("default title", true, user);
-
         when(taskService.completeTask(1L)).thenReturn(task);
 
         mockMvc.perform(patch("/tasks/{id}/complete", 1L))
@@ -69,5 +64,29 @@ public class TaskControllerTest {
         mockMvc.perform(patch("/tasks/{id}/complete", 1L))
                 .andExpect(status().isNotFound());
         verify(taskService).completeTask(1L);
+    }
+
+    @Test
+    void shouldReturnTaskWhenTaskExists() throws Exception {
+        User user = new User("Cristian", "ccidbe@gmail.com");
+        Task task = new Task("Default title", false, user);
+        when(taskService.getTaskById(1L)).thenReturn(task);
+
+        mockMvc.perform(get("/tasks/{id}", 1L))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value("Default title"))
+                .andExpect(jsonPath("$.completed").value(false));
+        verify(taskService).getTaskById(1L);
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenTaskDoesNotExist() throws Exception {
+        doThrow(new TaskNotFoundException("task not found"))
+                .when(taskService)
+                .getTaskById(1L);
+
+        mockMvc.perform(get("/tasks/{id}", 1L))
+                .andExpect(status().isNotFound());
+        verify(taskService).getTaskById(1L);
     }
 }
