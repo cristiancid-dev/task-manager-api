@@ -1,6 +1,7 @@
 package com.cristiancid.taskmanager.controller;
 
 import com.cristiancid.taskmanager.exception.TaskNotFoundException;
+import com.cristiancid.taskmanager.exception.UserNotFoundException;
 import com.cristiancid.taskmanager.model.Task;
 import com.cristiancid.taskmanager.model.User;
 import com.cristiancid.taskmanager.service.TaskService;
@@ -9,6 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Collections;
+import java.util.List;
+
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -88,5 +93,42 @@ public class TaskControllerTest {
         mockMvc.perform(get("/tasks/{id}", 1L))
                 .andExpect(status().isNotFound());
         verify(taskService).getTaskById(1L);
+    }
+
+    @Test
+    void shouldReturnTasksWhenUserHasTasks() throws Exception {
+        User user = new User("Cristian", "ccidbe@gmail.com");
+        Task task1 = new Task("task one", false, user);
+        Task task2 = new Task("task two", true, user);
+        when(taskService.getTasksByUserId(1L)).thenReturn(List.of(task1, task2));
+
+        mockMvc.perform(get("/users/{userId}/tasks", 1L))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].title").value("task one"))
+                .andExpect(jsonPath("$[1].completed").value(true))
+                        .andExpect(jsonPath("$.length()").value(2));
+        verify(taskService).getTasksByUserId(1L);
+    }
+
+    @Test
+    void shouldReturnEmptyListWhenUserHasNoTasks() throws Exception {
+        User user = new User("Cristian", "ccidbe@gmail.com");
+        when(taskService.getTasksByUserId(1L)).thenReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/users/{userId}/tasks", 1L))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
+        verify(taskService).getTasksByUserId(1L);
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenUserDoesNotExist() throws Exception {
+        doThrow(new UserNotFoundException("user not found"))
+                .when(taskService)
+                .getTasksByUserId(1L);
+
+        mockMvc.perform(get("/users/{userId}/tasks", 1L))
+                .andExpect(status().isNotFound());
+        verify(taskService).getTasksByUserId(1L);
     }
 }
