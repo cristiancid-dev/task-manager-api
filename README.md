@@ -1,132 +1,237 @@
 # Task Manager API
 
-A REST API for managing users and tasks built with Java and Spring Boot.
+A REST API for managing users and tasks built with **Java and Spring
+Boot**.
 
 This project is part of my backend development portfolio and focuses on
-building a clean, testable and maintainable REST API using modern Java
-backend practices and layered architecture.
+building a **clean, testable and maintainable REST API** using modern
+backend practices such as layered architecture, proper testing and
+containerized infrastructure.
+
+The goal of this project is to demonstrate backend development skills
+including:
+
+-   REST API design
+-   layered architecture
+-   database integration
+-   testing strategies
+-   environment configuration
 
 ------------------------------------------------------------------------
 
-## Tech Stack
+# Tech Stack
 
--   Java
--   Spring Boot
--   Spring Web
--   Spring Data JPA
--   H2 Database
--   Maven
--   JUnit
-
-------------------------------------------------------------------------
-
-## Architecture
-
-The application follows a layered architecture to ensure separation of
-concerns and maintainability.
-
-Controller → Service → Repository → Database
-
-### Layers
-
-**Controller** - Handles HTTP requests and responses - Validates
-incoming request data - Calls the appropriate service methods
-
-**Service** - Contains the business logic - Coordinates operations
-between repositories - Applies application rules
-
-**Repository** - Handles database access - Uses Spring Data JPA for
-persistence
-
-**Model** - Contains the application entities (User, Task)
+-   **Java**
+-   **Spring Boot**
+-   **Spring Web**
+-   **Spring Data JPA**
+-   **PostgreSQL**
+-   **Docker**
+-   **H2 (tests)**
+-   **JUnit 5**
+-   **Mockito**
+-   **MockMvc**
+-   **Maven**
 
 ------------------------------------------------------------------------
 
-## Features
+# Architecture
+
+The application follows a **layered architecture** to ensure separation
+of concerns and maintainability.
+
+    Controller → Service → Repository → Database
+
+## Layers
+
+### Controller
+
+-   Handles HTTP requests and responses
+-   Performs request validation
+-   Delegates operations to the service layer
+
+### Service
+
+-   Contains the business logic
+-   Coordinates operations between repositories
+-   Enforces application rules
+
+### Repository
+
+-   Handles database access
+-   Uses Spring Data JPA for persistence
+
+### Model
+
+-   Contains the domain entities (`User`, `Task`)
+
+### Exception
+
+-   Global exception handling
+-   Custom domain exceptions
+
+------------------------------------------------------------------------
+
+# Features
 
 -   Create users
 -   Retrieve users
 -   Create tasks
 -   Assign tasks to users
--   Update tasks
+-   Update task title
 -   Delete tasks
--   Task status management
+-   Mark tasks as completed
 -   Input validation
--   Exception handling
--   Unit testing with JUnit
+-   Global exception handling
+-   Layered architecture
+-   Unit and integration testing
 
 ------------------------------------------------------------------------
 
-## Project Structure
+# Project Structure
 
-src/main/java/com/cristiancid/taskmanager
+    src/main/java/com/cristiancid/taskmanager
 
-controller → REST controllers\
-service → Business logic\
-repository → Data access layer\
-model → JPA entities\
-exception → Global exception handling
-
-------------------------------------------------------------------------
-
-## Running the Project
-
-Clone the repository:
-
-git clone https://github.com/cristiancid-dev/task-manager-api.git
-
-Navigate to the project directory:
-
-cd task-manager-api
-
-Run the application:
-
-./mvnw spring-boot:run
-
-The API will start on:
-
-http://localhost:8080
+    controller     → REST controllers
+    service        → Business logic
+    repository     → Data access layer
+    model          → JPA entities
+    dto            → Request DTOs
+    exception      → Global exception handling
 
 ------------------------------------------------------------------------
 
-## Database
+# Infrastructure
 
-The project uses an H2 in-memory database for development.
+The development database runs inside a **PostgreSQL Docker container**.
 
-H2 Console:
+Using Docker provides:
 
-http://localhost:8080/h2-console
-
-Connection settings:
-
-JDBC URL: jdbc:h2:mem:dbtaskmanager\
-User: sa\
-Password: (empty)
+-   a reproducible development environment
+-   no need to install PostgreSQL locally
+-   easy setup for anyone cloning the project
 
 ------------------------------------------------------------------------
 
-## Running Tests
+# Running the Project
 
-To execute the unit tests:
+## 1 Start PostgreSQL
 
+From the project root:
+
+``` bash
+docker compose up -d
+```
+
+This will start the PostgreSQL container used for development.
+
+------------------------------------------------------------------------
+
+## 2 Run the application
+
+``` bash
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+```
+
+The API will start at:
+
+    http://localhost:8080
+
+------------------------------------------------------------------------
+
+# Database
+
+The project uses **different databases depending on the environment**.
+
+### Development
+
+-   PostgreSQL
+-   Runs inside Docker
+-   Persistent database
+
+### Testing
+
+-   H2 in-memory database
+-   Fast and isolated test environment
+
+------------------------------------------------------------------------
+
+# Testing
+
+The project includes multiple layers of testing.
+
+### Service Tests
+
+-   Test business logic
+-   Use **JUnit 5 + Mockito**
+
+### Controller Tests
+
+-   Test REST endpoints
+-   Use **Spring MockMvc**
+
+### Repository Tests
+
+-   Test JPA repositories
+-   Use **@DataJpaTest**
+
+Run tests with:
+
+``` bash
 ./mvnw test
-
-Tests are written using JUnit and focus on validating business logic.
-
-------------------------------------------------------------------------
-
-## Project Status
-
-Work in progress.
-
-New features and improvements will continue to be added as the project
-evolves.
+```
 
 ------------------------------------------------------------------------
 
-## Author
+# Example Endpoints
+
+### Create User
+
+    POST /users
+
+### Get User
+
+    GET /users/{id}
+
+### Create Task
+
+    POST /users/{userId}/tasks
+
+### Get Tasks by User
+
+    GET /users/{userId}/tasks
+
+### Update Task Title
+
+    PUT /tasks/{id}
+
+### Complete Task
+
+    PATCH /tasks/{id}/complete
+
+### Delete Task
+
+    DELETE /tasks/{id}
+
+------------------------------------------------------------------------
+
+# Project Status
+
+This project is **actively being improved** as part of my backend
+learning path.
+
+Planned improvements include:
+
+-   database migrations with Flyway
+-   pagination
+-   authentication with Spring Security
+-   improved API documentation
+
+------------------------------------------------------------------------
+
+# Author
 
 Cristian Cid
 
-GitHub:\
+GitHub\
 https://github.com/cristiancid-dev
