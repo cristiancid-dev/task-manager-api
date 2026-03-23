@@ -1,5 +1,6 @@
 package com.cristiancid.taskmanager.controller;
 
+import com.cristiancid.taskmanager.dto.CreateTaskRequest;
 import com.cristiancid.taskmanager.exception.TaskNotFoundException;
 import com.cristiancid.taskmanager.exception.UserNotFoundException;
 import com.cristiancid.taskmanager.model.Task;
@@ -8,8 +9,10 @@ import com.cristiancid.taskmanager.service.TaskService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.Collections;
 import java.util.List;
@@ -18,14 +21,17 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(TaskController.class)
 public class TaskControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    ObjectMapper objectMapper;
 
     @MockitoBean
     private TaskService taskService;
@@ -130,5 +136,34 @@ public class TaskControllerTest {
         mockMvc.perform(get("/users/{userId}/tasks", 1L))
                 .andExpect(status().isNotFound());
         verify(taskService).getTasksByUserId(1L);
+    }
+
+    @Test
+    void shouldCreateTaskWhenUserExists() throws Exception {
+        User user = new User("Cristian", "ccidbe@gmail.com");
+        CreateTaskRequest request = new CreateTaskRequest("new task");
+        Task task = new Task(request.getTitle(), false, user);
+        when(taskService.createTask(eq(1L), any(CreateTaskRequest.class))).thenReturn(task);
+
+        mockMvc.perform(post("/users/{userId}/tasks", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.title").value("new task"));
+        verify(taskService).createTask(eq(1L), any(CreateTaskRequest.class));
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenCreatingTaskForNonExistingUser() throws Exception {
+        CreateTaskRequest request = new CreateTaskRequest("new task");
+        when(taskService.createTask(eq(1L), any(CreateTaskRequest.class)))
+                .thenThrow(new UserNotFoundException("user not found"));
+
+        mockMvc.perform(post("/users/{userId}/tasks", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNotFound())
+                        .andExpect(jsonPath("$.error").value("user not found"));
+        verify(taskService).createTask(eq(1L), any(CreateTaskRequest.class));
     }
 }
