@@ -5,17 +5,11 @@ Boot**.
 
 This project is part of my backend development portfolio and focuses on
 building a **clean, testable and maintainable REST API** using modern
-backend practices such as layered architecture, proper testing and
+backend practices such as layered architecture, automated testing and
 containerized infrastructure.
 
-The goal of this project is to demonstrate backend development skills
-including:
-
--   REST API design
--   layered architecture
--   database integration
--   testing strategies
--   environment configuration
+The API allows creating users and managing their tasks, including
+completion status, updates and pagination.
 
 ------------------------------------------------------------------------
 
@@ -27,6 +21,7 @@ including:
 -   **Spring Data JPA**
 -   **PostgreSQL**
 -   **Docker**
+-   **Flyway**
 -   **H2 (tests)**
 -   **JUnit 5**
 -   **Mockito**
@@ -40,35 +35,47 @@ including:
 The application follows a **layered architecture** to ensure separation
 of concerns and maintainability.
 
-    Controller → Service → Repository → Database
+Controller → Service → Repository → Database
 
 ## Layers
 
 ### Controller
 
--   Handles HTTP requests and responses
--   Performs request validation
+Responsible for handling HTTP requests and responses.
+
+-   Exposes REST endpoints
+-   Validates incoming requests
 -   Delegates operations to the service layer
 
 ### Service
 
--   Contains the business logic
+Contains the **business logic of the application**.
+
 -   Coordinates operations between repositories
 -   Enforces application rules
+-   Throws domain-specific exceptions when necessary
 
 ### Repository
 
--   Handles database access
--   Uses Spring Data JPA for persistence
+Responsible for **data access**.
+
+-   Uses Spring Data JPA
+-   Provides database queries and persistence operations
 
 ### Model
 
--   Contains the domain entities (`User`, `Task`)
+Contains the **domain entities**:
+
+-   `User`
+-   `Task`
+
+### DTO
+
+Defines request objects used to receive API input.
 
 ### Exception
 
--   Global exception handling
--   Custom domain exceptions
+Centralized **global exception handling** and custom domain exceptions.
 
 ------------------------------------------------------------------------
 
@@ -81,23 +88,25 @@ of concerns and maintainability.
 -   Update task title
 -   Delete tasks
 -   Mark tasks as completed
+-   Pagination when retrieving tasks
 -   Input validation
 -   Global exception handling
 -   Layered architecture
 -   Unit and integration testing
+-   Database migrations with Flyway
 
 ------------------------------------------------------------------------
 
 # Project Structure
 
-    src/main/java/com/cristiancid/taskmanager
+src/main/java/com/cristiancid/taskmanager
 
-    controller     → REST controllers
-    service        → Business logic
-    repository     → Data access layer
-    model          → JPA entities
-    dto            → Request DTOs
-    exception      → Global exception handling
+controller → REST controllers\
+service → Business logic\
+repository → Data access layer\
+model → JPA entities\
+dto → Request DTOs\
+exception → Global exception handling
 
 ------------------------------------------------------------------------
 
@@ -111,6 +120,8 @@ Using Docker provides:
 -   no need to install PostgreSQL locally
 -   easy setup for anyone cloning the project
 
+Database schema changes are managed using **Flyway migrations**.
+
 ------------------------------------------------------------------------
 
 # Running the Project
@@ -119,23 +130,19 @@ Using Docker provides:
 
 From the project root:
 
-``` bash
 docker compose up -d
-```
 
-This will start the PostgreSQL container used for development.
+This starts the PostgreSQL container used for development.
 
 ------------------------------------------------------------------------
 
 ## 2 Run the application
 
-``` bash
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
-```
 
 The API will start at:
 
-    http://localhost:8080
+http://localhost:8080
 
 ------------------------------------------------------------------------
 
@@ -162,24 +169,27 @@ The project includes multiple layers of testing.
 
 ### Service Tests
 
--   Test business logic
--   Use **JUnit 5 + Mockito**
+Test business logic using:
+
+-   **JUnit 5**
+-   **Mockito**
 
 ### Controller Tests
 
--   Test REST endpoints
--   Use **Spring MockMvc**
+Test REST endpoints using:
+
+-   **Spring MockMvc**
 
 ### Repository Tests
 
--   Test JPA repositories
--   Use **@DataJpaTest**
+Test JPA repository behavior using:
+
+-   **@DataJpaTest**
+-   **TestEntityManager**
 
 Run tests with:
 
-``` bash
 ./mvnw test
-```
 
 ------------------------------------------------------------------------
 
@@ -187,45 +197,47 @@ Run tests with:
 
 ### Create User
 
-    POST /users
+POST /users
 
 ### Get User
 
-    GET /users/{id}
+GET /users/{id}
 
 ### Create Task
 
-    POST /users/{userId}/tasks
+POST /users/{userId}/tasks
 
-### Get Tasks by User
+### Get Tasks by User (paginated)
 
-    GET /users/{userId}/tasks
+GET /users/{userId}/tasks?page=0&size=10
 
 ### Update Task Title
 
-    PUT /tasks/{id}
+PUT /tasks/{id}
 
 ### Complete Task
 
-    PATCH /tasks/{id}/complete
+PATCH /tasks/{id}/complete
 
 ### Delete Task
 
-    DELETE /tasks/{id}
+DELETE /tasks/{id}
 
 ------------------------------------------------------------------------
 
-# Project Status
+# Project Purpose
 
-This project is **actively being improved** as part of my backend
-learning path.
+This project was built to practice and demonstrate backend development
+concepts such as:
 
-Planned improvements include:
+-   designing REST APIs
+-   implementing layered architecture
+-   working with relational databases
+-   writing automated tests
+-   containerized development environments
+-   database migrations
 
--   database migrations with Flyway
--   pagination
--   authentication with Spring Security
--   improved API documentation
+It serves as the **first project in a multi-project backend portfolio**.
 
 ------------------------------------------------------------------------
 
