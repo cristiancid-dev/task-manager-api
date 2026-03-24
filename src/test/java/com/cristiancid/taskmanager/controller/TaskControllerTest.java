@@ -122,7 +122,7 @@ public class TaskControllerTest {
     }
 
     @Test
-    void shouldReturnEmptyListWhenUserHasNoTasks() throws Exception {
+    void shouldReturnEmptyPageWhenUserHasNoTasks() throws Exception {
         User user = new User("Cristian", "ccidbe@gmail.com");
         Page<Task> page = new PageImpl<>(Collections.emptyList());
         when(taskService.getTasksByUserId(eq(1L), any(Pageable.class))).thenReturn(page);
@@ -172,5 +172,23 @@ public class TaskControllerTest {
                 .andExpect(status().isNotFound())
                         .andExpect(jsonPath("$.error").value("user not found"));
         verify(taskService).createTask(eq(1L), any(CreateTaskRequest.class));
+    }
+
+    @Test
+    void shouldReturnPagedTasksUsingPageAndSizeParameters() throws Exception {
+        User user = new User("Cristian", "ccidbe@gmail.com");
+        Task task1 = new Task("task one", false, user);
+        Page<Task> page = new PageImpl<>(List.of(task1));
+
+        when(taskService.getTasksByUserId(eq(1L),any(Pageable.class))).thenReturn(page);
+
+        mockMvc.perform(get("/users/{userId}/tasks", 1L)
+                .param("page","0")
+                .param("size", "1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.totalElements").value(1));
+        verify(taskService).getTasksByUserId(eq(1L), any(Pageable.class));
+
     }
 }

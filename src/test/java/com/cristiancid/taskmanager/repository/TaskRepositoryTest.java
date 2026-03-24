@@ -10,13 +10,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
-public class TaskRepositoryTest {
+class TaskRepositoryTest {
 
     @Autowired
     TaskRepository taskRepository;
@@ -40,13 +38,13 @@ public class TaskRepositoryTest {
         testEntityManager.persist(task4);
         testEntityManager.flush();
 
-        Pageable pageable = PageRequest.of(0,2);
-        Page<Task> tasks = taskRepository.findByUserId(user1.getId(),pageable);
+        Pageable pageable = PageRequest.of(0, 2);
+        Page<Task> result = taskRepository.findByUserId(user1.getId(), pageable);
 
-        assertEquals(2, tasks.getContent().size());
-        assertEquals(3, tasks.getTotalElements());
+        assertEquals(2, result.getContent().size());
+        assertEquals(3, result.getTotalElements());
         assertTrue(
-                tasks.getContent()
+                result.getContent()
                         .stream()
                         .allMatch(task -> task.getUser().getId().equals(user1.getId()))
         );
@@ -58,19 +56,19 @@ public class TaskRepositoryTest {
         testEntityManager.persist(user);
         testEntityManager.flush();
 
-        Pageable pageable = PageRequest.of(0,2);
-        Page<Task> tasks = taskRepository.findByUserId(user.getId(), pageable);
+        Pageable pageable = PageRequest.of(0, 2);
+        Page<Task> result = taskRepository.findByUserId(user.getId(), pageable);
 
-        assertTrue(tasks.getContent().isEmpty()) ;
-        assertEquals(0, tasks.getTotalElements());
+        assertTrue(result.getContent().isEmpty()) ;
+        assertEquals(0, result.getTotalElements());
     }
 
     @Test
     void shouldReturnEmptyPageWhenUserDoesNotExist() {
-        Pageable pageable = PageRequest.of(0,2);
-        Page<Task> tasks = taskRepository.findByUserId(999L, pageable);
+        Pageable pageable = PageRequest.of(0, 2);
+        Page<Task> result = taskRepository.findByUserId(999L, pageable);
 
-        assertTrue(tasks.getContent().isEmpty()) ;
-        assertEquals(0, tasks.getTotalElements());
+        assertTrue(result.getContent().isEmpty()) ;
+        assertEquals(0, result.getTotalElements());
     }
 }
