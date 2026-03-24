@@ -9,6 +9,9 @@ import com.cristiancid.taskmanager.service.TaskService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -106,36 +109,40 @@ public class TaskControllerTest {
         User user = new User("Cristian", "ccidbe@gmail.com");
         Task task1 = new Task("task one", false, user);
         Task task2 = new Task("task two", true, user);
-        when(taskService.getTasksByUserId(1L)).thenReturn(List.of(task1, task2));
+        Page<Task> page = new PageImpl<>(List.of(task1, task2));
+        when(taskService.getTasksByUserId(eq(1L), any(Pageable.class))).thenReturn(page);
 
         mockMvc.perform(get("/users/{userId}/tasks", 1L))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].title").value("task one"))
-                .andExpect(jsonPath("$[1].completed").value(true))
-                        .andExpect(jsonPath("$.length()").value(2));
-        verify(taskService).getTasksByUserId(1L);
+                .andExpect(jsonPath("$.content[0].title").value("task one"))
+                .andExpect(jsonPath("$.content[1].completed").value(true))
+                .andExpect(jsonPath("$.content.length()").value(2))
+                .andExpect(jsonPath("$.totalElements").value(2));
+        verify(taskService).getTasksByUserId(eq(1L), any(Pageable.class));
     }
 
     @Test
     void shouldReturnEmptyListWhenUserHasNoTasks() throws Exception {
         User user = new User("Cristian", "ccidbe@gmail.com");
-        when(taskService.getTasksByUserId(1L)).thenReturn(Collections.emptyList());
+        Page<Task> page = new PageImpl<>(Collections.emptyList());
+        when(taskService.getTasksByUserId(eq(1L), any(Pageable.class))).thenReturn(page);
 
         mockMvc.perform(get("/users/{userId}/tasks", 1L))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(0));
-        verify(taskService).getTasksByUserId(1L);
+                .andExpect(jsonPath("$.content.length()").value(0))
+                .andExpect(jsonPath("$.totalElements").value(0));
+        verify(taskService).getTasksByUserId(eq(1L), any(Pageable.class));
     }
 
     @Test
     void shouldReturnNotFoundWhenUserDoesNotExist() throws Exception {
         doThrow(new UserNotFoundException("user not found"))
                 .when(taskService)
-                .getTasksByUserId(1L);
+                .getTasksByUserId(eq(1L), any(Pageable.class));
 
         mockMvc.perform(get("/users/{userId}/tasks", 1L))
                 .andExpect(status().isNotFound());
-        verify(taskService).getTasksByUserId(1L);
+        verify(taskService).getTasksByUserId(eq(1L), any(Pageable.class));
     }
 
     @Test

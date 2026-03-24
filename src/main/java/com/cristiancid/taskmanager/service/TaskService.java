@@ -8,10 +8,10 @@ import com.cristiancid.taskmanager.model.Task;
 import com.cristiancid.taskmanager.model.User;
 import com.cristiancid.taskmanager.repository.TaskRepository;
 import com.cristiancid.taskmanager.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -34,12 +34,12 @@ public class TaskService {
         return taskRepository.save(newTask);
     }
 
-    public List<Task> getTasksByUserId(Long userId) {
+    public Page<Task> getTasksByUserId(Long userId, Pageable pageable) {
         Optional<User> optionalUser = userRepository.findById(userId);
         if (optionalUser.isEmpty()) {
             throw new UserNotFoundException("user not found");
         }
-        return taskRepository.findByUserId(userId);
+        return taskRepository.findByUserId(userId, pageable);
     }
 
     public Task getTaskById(Long id) {

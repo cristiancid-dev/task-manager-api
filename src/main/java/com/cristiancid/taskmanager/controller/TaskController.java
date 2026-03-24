@@ -5,12 +5,12 @@ import com.cristiancid.taskmanager.dto.UpdateTaskRequest;
 import com.cristiancid.taskmanager.model.Task;
 import com.cristiancid.taskmanager.service.TaskService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 public class TaskController {
@@ -29,8 +29,9 @@ public class TaskController {
     }
 
     @GetMapping("/users/{userId}/tasks")
-    public ResponseEntity<List<Task>> getTasksByUserId(@PathVariable Long userId) {
-        List<Task> userTasks = taskService.getTasksByUserId(userId);
+    public ResponseEntity<Page<Task>> getTasksByUserId(@PathVariable Long userId,
+                                                       @PageableDefault(size = 10) Pageable pageable) {
+        Page<Task> userTasks = taskService.getTasksByUserId(userId, pageable);
         return ResponseEntity.ok(userTasks);
     }
 
